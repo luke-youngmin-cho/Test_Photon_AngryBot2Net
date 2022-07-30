@@ -9,9 +9,20 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Mm]emoryCaptures/
+/[Pp]rojectSettings/
+/[Pp]ackages/
+/[Uu]serSettings/
+/Assets/AngryBotResources/
+/Assets/Photon/
+/Assets/RenderingAssets/
+/Assets/Resources/
+/Assets/StreamingAssets/
+/Assets/TextMesh Pro/
+/Assets/Scenes/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
+/[Aa]ssets/*.meta
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
