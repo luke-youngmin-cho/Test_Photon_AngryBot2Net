@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private GameObject _effect;
     [SerializeField] private float _speed = 1000f;
+    public int actorNumber { get; set; }
     private void Start()
     {
         GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * _speed);

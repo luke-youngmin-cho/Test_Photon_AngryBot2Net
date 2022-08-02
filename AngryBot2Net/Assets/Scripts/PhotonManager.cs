@@ -16,6 +16,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     private string _userId = "Luke";
     [SerializeField] private TMP_InputField _userIDInputField;
     [SerializeField] private TMP_InputField _roomNameInputField;
+    [SerializeField] private GameObject _roomItemPrefab;
+    [SerializeField] private Transform _roomScrollContent;
+    private Dictionary<string, GameObject> _rooms = new Dictionary<string, GameObject>();
     private void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
@@ -25,7 +28,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log(PhotonNetwork.SendRate);
 
         // 포톤 서버 접속
-        PhotonNetwork.ConnectUsingSettings();
+        if (PhotonNetwork.IsConnected == false)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 
     private void Start()
@@ -35,7 +41,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.NickName = _userId;
     }
 
-    private void SetUserID()
+    public void SetUserID()
     {
         if (string.IsNullOrEmpty(_userIDInputField.text))
         {
@@ -78,7 +84,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log($"JoinRandomRoom Failed {returnCode} : {message}");
-        OnMakeRoomClick();
     }
 
     public override void OnCreatedRoom()
@@ -103,17 +108,45 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
     }
 
-#region UI_BUTTON_EVENT
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        GameObject tmpRoom = null;
+        foreach (RoomInfo roomInfo in roomList)
+        {
+            Debug.Log($"Room = {roomInfo.Name} ({roomInfo.PlayerCount} / {roomInfo.MaxPlayers})");
+
+            if (roomInfo.RemovedFromList)
+            {
+                if (_rooms.TryGetValue(roomInfo.Name, out tmpRoom))
+                {
+                    Destroy(tmpRoom);
+                    _rooms.Remove(roomInfo.Name);
+                }
+            }
+            else
+            {
+                if (_rooms.TryGetValue(roomInfo.Name, out tmpRoom) == false)
+                {
+                    tmpRoom = Instantiate(_roomItemPrefab, _roomScrollContent);
+                    _rooms.Add(roomInfo.Name, tmpRoom);
+                }
+                tmpRoom.GetComponent<RoomData>().roomInfo = roomInfo;
+            }
+        }
+    }
+
+
+    #region UI_BUTTON_EVENT
     public void OnLoginClick()
     {
         SetUserID();
-        PhotonNetwork.JoinRandomRoom();
+        //PhotonNetwork.JoinRandomRoom();
     }
 
     public void OnMakeRoomClick()
     {
         SetUserID();
-
+    
         RoomOptions ro = new RoomOptions();
         ro.MaxPlayers = 20;
         ro.IsOpen = true;
